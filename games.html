@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Games · Data Solutions 365</title>
+<meta name="description" content="Games to play: Dress Up and Snake.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f6f8fb;
+    --surface: #ffffff;
+    --ink: #0f1b2d;
+    --muted: #5b6b82;
+    --line: #e2e8f0;
+    --brand: #2563eb;
+    --brand-2: #0ea5a4;
+    --accent: #f59e0b;
+    --pink: #e85d9c;
+    --hero-1: #0b1f3f;
+    --hero-2: #12396e;
+    --radius: 14px;
+    --shadow: 0 6px 24px rgba(15, 27, 45, .08);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0b1220; --surface: #121b2e; --ink: #e6edf7; --muted: #9fb0c8; --line: #1f2b44;
+      --shadow: 0 6px 24px rgba(0,0,0,.35);
+    }
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif; background: var(--bg); color: var(--ink); line-height: 1.55; }
+  a { color: inherit; }
+  .wrap { max-width: 1160px; margin: 0 auto; padding: 0 20px; }
+
+  /* Nav */
+  header.nav { position: sticky; top: 0; z-index: 20; background: rgba(11,31,63,.92); backdrop-filter: blur(8px); color: #fff; }
+  .nav .wrap { display: flex; align-items: center; gap: 24px; height: 64px; }
+  .logo { display: flex; align-items: center; gap: 10px; font-weight: 800; text-decoration: none; letter-spacing: -.01em; }
+  .logo svg { flex: none; }
+  .nav ul { list-style: none; display: flex; gap: 6px; margin: 0 0 0 auto; padding: 0; align-items: center; }
+  .nav ul a { text-decoration: none; padding: 8px 12px; border-radius: 8px; font-weight: 500; color: #d6e2f5; }
+  .nav ul a:hover { background: rgba(255,255,255,.1); color: #fff; }
+  .nav .games-btn { background: var(--accent); color: #1c1300; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; }
+  .nav .games-btn:hover { background: #fbbf24; color: #1c1300; }
+  .menu-toggle { display: none; margin-left: auto; background: none; border: 1px solid rgba(255,255,255,.3); color: #fff; border-radius: 8px; padding: 6px 10px; font-size: 18px; }
+
+  /* Hero */
+  .hero { background: radial-gradient(1200px 500px at 85% -10%, #1d4ed8 0%, transparent 60%), linear-gradient(135deg, var(--hero-1), var(--hero-2)); color: #fff; padding: 72px 0 96px; overflow: hidden; }
+  .hero .wrap { display: grid; grid-template-columns: 1.05fr 1fr; gap: 48px; align-items: center; }
+  .eyebrow { display: inline-block; font-size: 13px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: #93c5fd; background: rgba(147,197,253,.12); padding: 6px 12px; border-radius: 999px; }
+  .hero h1 { font-size: clamp(34px, 5vw, 54px); line-height: 1.08; letter-spacing: -.02em; margin: 18px 0 16px; }
+  .hero h1 span { background: linear-gradient(90deg, #60a5fa, #2dd4bf); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .hero p.lead { font-size: 18px; color: #c7d6ee; max-width: 540px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 22px 0 30px; }
+  .chip { font-size: 13px; padding: 6px 12px; border-radius: 999px; border: 1px solid rgba(255,255,255,.2); color: #e2ecfb; }
+  .btn { display: inline-flex; align-items: center; gap: 8px; padding: 13px 22px; border-radius: 10px; font-weight: 600; text-decoration: none; border: 0; cursor: pointer; font-size: 15px; }
+  .btn-primary { background: #3b82f6; color: #fff; }
+  .btn-primary:hover { background: #2563eb; }
+  .btn-ghost { border: 1px solid rgba(255,255,255,.35); color: #fff; margin-left: 10px; }
+  .btn-ghost:hover { background: rgba(255,255,255,.08); }
+
+  .dash { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.14); border-radius: 18px; padding: 18px; box-shadow: 0 30px 60px rgba(0,0,0,.3); }
+  .dash-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; font-size: 13px; color: #b8c9e4; }
+  .dots i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; background: #ef4444; }
+  .dots i:nth-child(2) { background: #f59e0b; } .dots i:nth-child(3) { background: #22c55e; }
+  .kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 12px; }
+  .kpi { background: rgba(255,255,255,.07); border-radius: 12px; padding: 12px; }
+  .kpi small { color: #a9bddb; font-size: 12px; display: block; }
+  .kpi b { font-size: 22px; display: block; margin-top: 2px; }
+  .kpi em { font-style: normal; font-size: 12px; color: #4ade80; }
+  .dash-charts { display: grid; grid-template-columns: 1.6fr 1fr; gap: 10px; }
+  .panel { background: rgba(255,255,255,.07); border-radius: 12px; padding: 12px; }
+  #heroDonut { display: block; max-width: 170px; margin: 0 auto; }
+  .panel h4 { margin: 0 0 6px; font-size: 12px; font-weight: 600; color: #a9bddb; }
+
+  /* Sections */
+  section { padding: 84px 0; }
+  .section-head { text-align: center; max-width: 680px; margin: 0 auto 44px; }
+  .section-head h2 { font-size: clamp(28px, 3.4vw, 38px); letter-spacing: -.02em; margin: 10px 0; }
+  .section-head p { color: var(--muted); font-size: 17px; margin: 0; }
+  .tag { color: var(--brand); font-weight: 700; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; }
+
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow); }
+  .card h3 { margin: 12px 0 8px; font-size: 19px; }
+  .card p { margin: 0; color: var(--muted); }
+  .icon { width: 44px; height: 44px; border-radius: 11px; display: grid; place-items: center; color: #fff; }
+
+  .showcase { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; }
+  .showcase > *, .grid-3 > *, .game-grid > *, .hero .wrap > * { min-width: 0; }
+  .chart-card h3 { margin: 0 0 4px; font-size: 17px; }
+  .chart-card .sub { color: var(--muted); font-size: 14px; margin-bottom: 14px; }
+  .chart-card svg { width: 100%; height: auto; display: block; }
+  .chart-card text { fill: var(--muted); font-size: 11px; font-family: inherit; }
+  .legend { display: flex; gap: 16px; font-size: 13px; color: var(--muted); margin-top: 10px; flex-wrap: wrap; }
+  .legend span::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; background: var(--c); vertical-align: -1px; }
+  .sql { margin-top: 14px; background: #0b1220; color: #cbd5e1; border-radius: 10px; padding: 14px 16px; font: 13px/1.6 ui-monospace, "Cascadia Code", Consolas, monospace; overflow-x: auto; }
+  .sql .k { color: #60a5fa; } .sql .f { color: #f472b6; } .sql .s { color: #34d399; }
+
+  /* Products */
+  .products { background: var(--surface); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .product { display: flex; flex-direction: column; padding: 0; overflow: hidden; }
+  .product .thumb { height: 150px; display: grid; place-items: center; color: #fff; }
+  .product .body { padding: 22px; display: flex; flex-direction: column; flex: 1; }
+  .product .price { font-size: 26px; font-weight: 800; margin: 12px 0 4px; color: var(--ink); }
+  .product .price small { font-size: 14px; font-weight: 500; color: var(--muted); }
+  .product ul { padding-left: 18px; margin: 10px 0 20px; color: var(--muted); font-size: 15px; }
+  .product .btn { margin-top: auto; justify-content: center; background: var(--brand); color: #fff; }
+  .badge { align-self: flex-start; font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 999px; background: rgba(245,158,11,.15); color: #b45309; }
+
+  /* Games */
+  .games { background: linear-gradient(135deg, #fff7ed, #fdf2f8 50%, #ecfeff); }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .games { background: linear-gradient(135deg, #2a1d0f, #2a1424 50%, #0d2a2e); } }
+  .game-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 26px; max-width: 900px; margin: 0 auto; }
+  .game { display: block; text-decoration: none; border-radius: 22px; overflow: hidden; background: var(--surface); box-shadow: 0 10px 30px rgba(0,0,0,.1); transition: transform .18s ease, box-shadow .18s ease; border: 3px solid transparent; }
+  .game:hover, .game:focus-visible { transform: translateY(-6px) rotate(-.5deg); box-shadow: 0 18px 40px rgba(0,0,0,.18); outline: none; }
+  .game.dressup:hover, .game.dressup:focus-visible { border-color: var(--pink); }
+  .game.snake:hover, .game.snake:focus-visible { border-color: #22c55e; }
+  .game .art { height: 210px; display: grid; place-items: center; }
+  .game.dressup .art { background: linear-gradient(135deg, #f9a8d4, #c084fc); }
+  .game.snake .art { background: linear-gradient(135deg, #86efac, #14b8a6); }
+  .game .info { padding: 20px 24px 24px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .game h3 { margin: 0; font-size: 24px; }
+  .game p { margin: 4px 0 0; color: var(--muted); }
+  .play { flex: none; font-weight: 800; color: #fff; padding: 12px 20px; border-radius: 999px; font-size: 16px; }
+  .dressup .play { background: var(--pink); } .snake .play { background: #16a34a; }
+
+  /* Contact / footer */
+  .contact { text-align: center; }
+  .contact .btn { background: var(--brand); color: #fff; }
+  footer { background: var(--hero-1); color: #9fb3d3; padding: 28px 0; font-size: 14px; }
+  footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+  footer a { color: #cfe0ff; text-decoration: none; margin-left: 16px; }
+
+  @media (max-width: 900px) {
+    .hero .wrap, .showcase, .grid-3, .game-grid { grid-template-columns: 1fr; }
+    .hero { padding: 48px 0 64px; }
+    .menu-toggle { display: block; }
+    .nav ul { display: none; position: absolute; top: 64px; left: 0; right: 0; background: var(--hero-1); flex-direction: column; align-items: stretch; padding: 12px 16px 18px; }
+    .nav ul.open { display: flex; }
+    .nav ul a { display: block; }
+    .wrap { padding: 0 16px; }
+    section { padding: 60px 0; }
+    .btn-ghost { margin: 10px 0 0; }
+  }
+  @media (max-width: 480px) { .kpis { grid-template-columns: 1fr 1fr; } .kpis .kpi:last-child { display: none; } .dash-charts { grid-template-columns: 1fr; } }
+
+  /* Owner area (only shown after signing in) */
+  .nav .signin { border: 1px solid rgba(255,255,255,.3); }
+  .owner { background: var(--surface); border-bottom: 1px solid var(--line); padding: 48px 0; }
+  .owner-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; }
+  .owner-head h2 { margin: 4px 0 0; font-size: 28px; letter-spacing: -.02em; }
+  .owner-head p { margin: 4px 0 0; color: var(--muted); }
+  .btn-outline { border: 1px solid var(--line); color: var(--ink); background: transparent; }
+  .owner-kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-bottom: 18px; }
+  .owner-kpis .card { padding: 16px; }
+  .owner-kpis small { color: var(--muted); font-size: 13px; }
+  .owner-kpis b { display: block; font-size: 26px; margin: 2px 0; }
+  .owner-kpis span { color: var(--muted); font-size: 13px; }
+  .owner-grid { display: grid; grid-template-columns: 1.6fr 1fr; gap: 18px; }
+  .owner-grid > * { min-width: 0; }
+  .owner-bars { display: flex; align-items: flex-end; gap: 4px; height: 140px; margin-top: 12px; }
+  .owner-bars div { flex: 1; background: #3b82f6; border-radius: 3px 3px 0 0; min-height: 2px; }
+  .owner-links { list-style: none; padding: 0; margin: 10px 0 0; }
+  .owner-links li { border-top: 1px solid var(--line); }
+  .owner-links a { display: flex; justify-content: space-between; padding: 10px 2px; text-decoration: none; color: var(--brand); font-weight: 500; }
+  .owner-msg { color: #dc2626; margin: 0 0 12px; }
+  @media (max-width: 900px) { .owner-kpis { grid-template-columns: 1fr 1fr; } .owner-grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap">
+    <a href="/" class="logo" aria-label="Data Solutions 365 home">
+      <svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#3b82f6"/><rect x="7" y="17" width="4" height="8" rx="1" fill="#fff"/><rect x="14" y="11" width="4" height="14" rx="1" fill="#fff"/><rect x="21" y="6" width="4" height="19" rx="1" fill="#5eead4"/></svg>
+      Data Solutions 365
+    </a>
+    <button class="menu-toggle" aria-label="Open menu" aria-expanded="false" onclick="toggleMenu(this)">☰</button>
+    <ul id="menu">
+      <li><a href="/#services">Services</a></li>
+      <li><a href="/#showcase">Analytics</a></li>
+      <li><a href="/#products">Products</a></li>
+      <li><a href="/#contact">Contact</a></li>
+      <li><a href="games.html" class="games-btn" aria-current="page">🎮 Games</a></li>
+    </ul>
+  </div>
+</header>
+
+<main>
+  <!-- GAMES -->
+  <section id="games" class="games" style="min-height:calc(100vh - 64px - 80px)">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="tag" style="color:#db2777">Just for fun</span>
+        <h2>🎮 Games</h2>
+        <p>Pick a game and click to play!</p>
+      </div>
+      <div class="game-grid">
+        <a class="game dressup" href="https://dressup.datasolutions365.com" aria-label="Play Dress Up">
+          <div class="art">
+            <svg width="150" height="150" viewBox="0 0 120 120" aria-hidden="true">
+              <circle cx="60" cy="30" r="16" fill="#ffe0c7"/>
+              <path d="M44 28c0-14 32-14 32 0-4-6-10-8-16-8s-12 2-16 8z" fill="#7c3aed"/>
+              <circle cx="54" cy="31" r="2" fill="#1f2937"/><circle cx="66" cy="31" r="2" fill="#1f2937"/>
+              <path d="M55 37q5 4 10 0" stroke="#be185d" stroke-width="2" fill="none" stroke-linecap="round"/>
+              <path d="M48 50h24l14 50H34z" fill="#fff" opacity=".95"/>
+              <path d="M48 50h24l6 22H42z" fill="#ec4899"/>
+              <circle cx="60" cy="60" r="3" fill="#fde047"/>
+              <path d="M90 22l3 7 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z" fill="#fde047"/>
+              <path d="M24 70l2 4 4 1-3 3 1 4-4-2-4 2 1-4-3-3 4-1z" fill="#fff"/>
+            </svg>
+          </div>
+          <div class="info">
+            <div><h3>Dress Up</h3><p>Mix and match outfits</p></div>
+            <span class="play">Play ▶</span>
+          </div>
+        </a>
+        <a class="game snake" href="https://snake.datasolutions365.com" aria-label="Play Snake">
+          <div class="art">
+            <svg width="170" height="150" viewBox="0 0 140 120" aria-hidden="true">
+              <g fill="#fff" opacity=".18"><rect x="10" y="10" width="120" height="100" rx="8"/></g>
+              <g fill="#166534">
+                <rect x="20" y="80" width="16" height="16" rx="4"/><rect x="36" y="80" width="16" height="16" rx="4"/><rect x="52" y="80" width="16" height="16" rx="4"/>
+                <rect x="52" y="64" width="16" height="16" rx="4"/><rect x="52" y="48" width="16" height="16" rx="4"/><rect x="68" y="48" width="16" height="16" rx="4"/>
+              </g>
+              <rect x="84" y="48" width="18" height="16" rx="5" fill="#15803d"/>
+              <circle cx="96" cy="53" r="2.2" fill="#fff"/><circle cx="96" cy="59" r="2.2" fill="#fff"/>
+              <path d="M102 56h6l3-3M108 56l3 3" stroke="#dc2626" stroke-width="2" fill="none" stroke-linecap="round"/>
+              <circle cx="116" cy="28" r="7" fill="#ef4444"/><path d="M116 21q2-5 6-5" stroke="#166534" stroke-width="2" fill="none"/>
+            </svg>
+          </div>
+          <div class="info">
+            <div><h3>Snake</h3><p>Eat the apples, grow longer</p></div>
+            <span class="play">Play ▶</span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© <span id="year"></span> Data Solutions 365</span>
+    <span><a href="/#services">Services</a><a href="/#products">Products</a><a href="games.html">Games</a></span>
+  </div>
+</footer>
+
+<script>
+  document.getElementById('year').textContent = new Date().getFullYear();
+  function toggleMenu(btn) {
+    const m = document.getElementById('menu');
+    btn.setAttribute('aria-expanded', m.classList.toggle('open'));
+  }
+</script>
+</body>
+</html>
