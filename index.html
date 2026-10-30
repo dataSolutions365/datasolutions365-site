@@ -168,6 +168,14 @@
   .owner-links li { border-top: 1px solid var(--line); }
   .owner-links a { display: flex; justify-content: space-between; padding: 10px 2px; text-decoration: none; color: var(--brand); font-weight: 500; }
   .owner-msg { color: #dc2626; margin: 0 0 12px; }
+  .owner-more { margin-top: 18px; }
+  .owner-more summary { cursor: pointer; font-weight: 600; }
+  .owner-table { overflow-x: auto; margin-top: 12px; }
+  .owner-table table { border-collapse: collapse; width: 100%; font-size: 14px; }
+  .owner-table th, .owner-table td { padding: 6px 8px; text-align: right; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  .owner-table th:first-child, .owner-table td:first-child { text-align: left; }
+  .owner-table th { color: var(--muted); font-weight: 500; }
+  .owner-errors pre { white-space: pre-wrap; background: #0b1220; color: #cbd5e1; padding: 10px 12px; border-radius: 8px; font-size: 12px; margin: 10px 0 0; }
   @media (max-width: 900px) { .owner-kpis { grid-template-columns: 1fr 1fr; } .owner-grid { grid-template-columns: 1fr; } }
 </style>
 </head>
@@ -243,13 +251,20 @@
         <div class="card">
           <h3 style="margin:0">Quick links</h3>
           <ul class="owner-links">
-            <li><a href="https://snake.datasolutions365.com/stats.html">Full snake stats &amp; errors <span>→</span></a></li>
             <li><a href="https://console.firebase.google.com/project/snake-game-2e23b/firestore">Firebase console <span>→</span></a></li>
             <li><a href="https://github.com/dataSolutions365">GitHub repos <span>→</span></a></li>
             <li><a href="https://dcc.godaddy.com/control/portfolio/datasolutions365.com/settings">GoDaddy DNS <span>→</span></a></li>
           </ul>
         </div>
       </div>
+      <details class="card owner-more">
+        <summary>🐍 Every day, by game mode</summary>
+        <div class="owner-table" id="ownerTable"></div>
+      </details>
+      <details class="card owner-more">
+        <summary>⚠️ Recent snake errors <span id="ownerErrCount" style="color:var(--muted);font-weight:400"></span></summary>
+        <div class="owner-errors" id="ownerErrors"></div>
+      </details>
     </div>
   </section>
 
@@ -555,6 +570,7 @@
       try {
         const snap = await db.collection('stats').get();
         showStats(snap.docs.map(d => ({ day: d.id, ...d.data() })));
+        showErrors().catch(() => { $('ownerErrors').textContent = 'Couldn\'t load errors.'; });
         $('ownerWho').textContent = 'Signed in as ' + user.email;
         $('ownerMsg').textContent = '';
         link.textContent = '📊 Owner';
@@ -579,6 +595,30 @@
       for (let i = 29; i >= 0; i--) { const f = days.find(d => d.day === dayString(i)); recent.push([dayString(i), f ? num(f.games) : 0]); }
       const most = Math.max(1, ...recent.map(r => r[1]));
       $('ownerBars').innerHTML = recent.map(([day, n]) => `<div style="height:${n / most * 100}%" title="${day}: ${n} games"></div>`).join('');
+
+      // Every day, newest first, with each game mode.
+      const cols = [['visits', 'Visits'], ['phone_visits', 'Phone'], ['computer_visits', 'Computer'], ['games', 'Games'],
+        ['games_easy', 'Easy'], ['games_easy_snakes', 'Easy 🐍'], ['games_medium', 'Medium'], ['games_medium_snakes', 'Medium 🐍'],
+        ['games_twoplayer', '2 players'], ['games_online', 'Online'], ['rooms', 'Rooms']];
+      const sorted = [...days].sort((a, b) => b.day.localeCompare(a.day));
+      $('ownerTable').innerHTML = '<table><tr><th>Day</th>' + cols.map(c => `<th>${c[1]}</th>`).join('') + '</tr>'
+        + (sorted.length ? sorted.map(d => `<tr><td>${d.day}</td>` + cols.map(c => `<td>${num(d[c[0]])}</td>`).join('') + '</tr>').join('')
+          : '<tr><td colspan="12">No games yet.</td></tr>') + '</table>';
+    }
+
+    // The 20 newest errors from the snake game. Shown as plain text,
+    // since anyone's browser can write to this list.
+    async function showErrors() {
+      const snap = await db.collection('errors').orderBy('at', 'desc').limit(20).get();
+      const list = $('ownerErrors');
+      list.textContent = '';
+      $('ownerErrCount').textContent = snap.empty ? '(none 🎉)' : '(' + snap.size + ')';
+      snap.docs.forEach(doc => {
+        const e = doc.data();
+        const box = document.createElement('pre');
+        box.textContent = [(e.at ? e.at.toDate().toLocaleString() : '') + '   v' + e.version + '   ' + e.where, e.message, e.stack, e.device].join('\n');
+        list.append(box);
+      });
     }
   })();
 
