@@ -39,3 +39,18 @@ The game can still *count* visits and games; only *reading* the numbers is locke
 
 https://snake.datasolutions365.com/stats.html has the same Google sign-in, so it keeps
 working for you after step 3 and shows nothing to anyone else.
+
+## 4. Dress-up stats
+The dress-up game counts visits and button taps (no names or photos) into the
+snake project's database, in a list called `dressup_stats`. Add this block to the
+Firestore rules, next to the `stats` block, and click **Publish**
+(the full rules are in `firestore.rules`):
+
+```
+    match /dressup_stats/{day} {
+      allow read: if isOwner();
+      allow create, update: if day.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+        && request.resource.data.keys().hasOnly(['visits', 'phone_visits', 'computer_visits', 'start_playing', 'surprise',
+             'save_look', 'open_gallery', 'open_music', 'open_messages', 'send_message']);
+    }
+```

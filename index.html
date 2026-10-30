@@ -241,6 +241,7 @@
         <button class="btn btn-outline" id="signOutBtn">Sign out</button>
       </div>
       <p class="owner-msg" id="ownerMsg"></p>
+      <h3 style="margin:0 0 12px">🐍 Snake</h3>
       <div class="owner-kpis" id="ownerKpis"></div>
       <div class="owner-grid">
         <div class="card">
@@ -257,8 +258,15 @@
           </ul>
         </div>
       </div>
+      <h3 style="margin:28px 0 12px">👗 Dress Up</h3>
+      <p class="owner-msg" id="dressMsg"></p>
+      <div class="owner-kpis" id="dressKpis"></div>
       <details class="card owner-more">
-        <summary>🐍 Every day, by game mode</summary>
+        <summary>👗 Dress Up, every day</summary>
+        <div class="owner-table" id="dressTable"></div>
+      </details>
+      <details class="card owner-more">
+        <summary>🐍 Snake, every day by game mode</summary>
         <div class="owner-table" id="ownerTable"></div>
       </details>
       <details class="card owner-more">
@@ -570,6 +578,7 @@
       try {
         const snap = await db.collection('stats').get();
         showStats(snap.docs.map(d => ({ day: d.id, ...d.data() })));
+        showDressUp().catch(() => { $('dressMsg').textContent = 'Dress-up stats aren\'t switched on yet. Add the dressup_stats rule in Firebase.'; });
         showErrors().catch(() => { $('ownerErrors').textContent = 'Couldn\'t load errors.'; });
         $('ownerWho').textContent = 'Signed in as ' + user.email;
         $('ownerMsg').textContent = '';
@@ -604,6 +613,23 @@
       $('ownerTable').innerHTML = '<table><tr><th>Day</th>' + cols.map(c => `<th>${c[1]}</th>`).join('') + '</tr>'
         + (sorted.length ? sorted.map(d => `<tr><td>${d.day}</td>` + cols.map(c => `<td>${num(d[c[0]])}</td>`).join('') + '</tr>').join('')
           : '<tr><td colspan="12">No games yet.</td></tr>') + '</table>';
+    }
+
+    // Dress-up counts, written by dressup.datasolutions365.com to the dressup_stats list.
+    async function showDressUp() {
+      const days = (await db.collection('dressup_stats').get()).docs.map(d => ({ day: d.id, ...d.data() }));
+      $('dressMsg').textContent = '';
+      const dayString = ago => new Date(Date.now() - ago * 86400000).toISOString().slice(0, 10);
+      const total = (field, last) => days.filter(d => !last || d.day > dayString(last)).reduce((s, d) => s + num(d[field]), 0);
+      const card = (label, last) => `<div class="card"><small>${label}</small><b>${total('visits', last).toLocaleString()} visits</b><span>${total('save_look', last).toLocaleString()} looks saved</span></div>`;
+      $('dressKpis').innerHTML = card('Today', 1) + card('Last 7 days', 7) + card('Last 30 days', 30) + card('All time', 0);
+      const cols = [['visits', 'Visits'], ['phone_visits', 'Phone'], ['computer_visits', 'Computer'], ['start_playing', 'Started'],
+        ['surprise', 'Surprise me'], ['save_look', 'Saved'], ['open_gallery', 'Gallery'], ['open_music', 'Music'],
+        ['open_messages', 'Messages'], ['send_message', 'Sent']];
+      const sorted = [...days].sort((a, b) => b.day.localeCompare(a.day));
+      $('dressTable').innerHTML = '<table><tr><th>Day</th>' + cols.map(c => `<th>${c[1]}</th>`).join('') + '</tr>'
+        + (sorted.length ? sorted.map(d => `<tr><td>${d.day}</td>` + cols.map(c => `<td>${num(d[c[0]])}</td>`).join('') + '</tr>').join('')
+          : '<tr><td colspan="11">No visits yet.</td></tr>') + '</table>';
     }
 
     // The 20 newest errors from the snake game. Shown as plain text,
