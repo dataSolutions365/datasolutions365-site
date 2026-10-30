@@ -56,7 +56,7 @@ service cloud.firestore {
         && request.resource.data.stack is string && request.resource.data.stack.size() <= 1500
         && request.resource.data.where is string && request.resource.data.where.size() <= 200
         && request.resource.data.device is string && request.resource.data.device.size() <= 300
-        && request.resource.data.version is string && request.resource.data.version.size() <= 20
+        && request.resource.data.version is string && request.resource.data.version.size() <= 40
         && request.resource.data.at == request.time;
     }
     // Errors from the game: the game can add them, only the owner can read them.
