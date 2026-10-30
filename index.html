@@ -147,6 +147,28 @@
     .btn-ghost { margin: 10px 0 0; }
   }
   @media (max-width: 480px) { .kpis { grid-template-columns: 1fr 1fr; } .kpis .kpi:last-child { display: none; } .dash-charts { grid-template-columns: 1fr; } }
+
+  /* Owner area (only shown after signing in) */
+  .nav .signin { border: 1px solid rgba(255,255,255,.3); }
+  .owner { background: var(--surface); border-bottom: 1px solid var(--line); padding: 48px 0; }
+  .owner-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; }
+  .owner-head h2 { margin: 4px 0 0; font-size: 28px; letter-spacing: -.02em; }
+  .owner-head p { margin: 4px 0 0; color: var(--muted); }
+  .btn-outline { border: 1px solid var(--line); color: var(--ink); background: transparent; }
+  .owner-kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-bottom: 18px; }
+  .owner-kpis .card { padding: 16px; }
+  .owner-kpis small { color: var(--muted); font-size: 13px; }
+  .owner-kpis b { display: block; font-size: 26px; margin: 2px 0; }
+  .owner-kpis span { color: var(--muted); font-size: 13px; }
+  .owner-grid { display: grid; grid-template-columns: 1.6fr 1fr; gap: 18px; }
+  .owner-grid > * { min-width: 0; }
+  .owner-bars { display: flex; align-items: flex-end; gap: 4px; height: 140px; margin-top: 12px; }
+  .owner-bars div { flex: 1; background: #3b82f6; border-radius: 3px 3px 0 0; min-height: 2px; }
+  .owner-links { list-style: none; padding: 0; margin: 10px 0 0; }
+  .owner-links li { border-top: 1px solid var(--line); }
+  .owner-links a { display: flex; justify-content: space-between; padding: 10px 2px; text-decoration: none; color: var(--brand); font-weight: 500; }
+  .owner-msg { color: #dc2626; margin: 0 0 12px; }
+  @media (max-width: 900px) { .owner-kpis { grid-template-columns: 1fr 1fr; } .owner-grid { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
@@ -163,6 +185,7 @@
       <li><a href="#showcase">Analytics</a></li>
       <li><a href="#products">Products</a></li>
       <li><a href="#contact">Contact</a></li>
+      <li><a href="#owner" id="signInLink" class="signin">🔒 Sign in</a></li>
       <li><a href="#games" class="games-btn">🎮 Games</a></li>
     </ul>
   </div>
@@ -193,6 +216,38 @@
         <div class="dash-charts">
           <div class="panel"><h4>Monthly revenue</h4><svg id="heroArea" viewBox="0 0 300 130" role="img" aria-label="Area chart of monthly revenue trending up"></svg></div>
           <div class="panel"><h4>By channel</h4><svg id="heroDonut" viewBox="0 0 130 130" role="img" aria-label="Donut chart of revenue by channel"></svg></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- OWNER AREA: hidden until the owner signs in (see OWNER_SETUP.md) -->
+  <section id="owner" class="owner" hidden>
+    <div class="wrap">
+      <div class="owner-head">
+        <div>
+          <span class="tag">Owner area · only you can see this</span>
+          <h2>Welcome back</h2>
+          <p id="ownerWho"></p>
+        </div>
+        <button class="btn btn-outline" id="signOutBtn">Sign out</button>
+      </div>
+      <p class="owner-msg" id="ownerMsg"></p>
+      <div class="owner-kpis" id="ownerKpis"></div>
+      <div class="owner-grid">
+        <div class="card">
+          <h3 style="margin:0">🐍 Snake games per day</h3>
+          <div class="sub" style="color:var(--muted);font-size:14px">Last 30 days</div>
+          <div class="owner-bars" id="ownerBars" aria-label="Snake games per day for the last 30 days"></div>
+        </div>
+        <div class="card">
+          <h3 style="margin:0">Quick links</h3>
+          <ul class="owner-links">
+            <li><a href="https://snake.datasolutions365.com/stats.html">Full snake stats &amp; errors <span>→</span></a></li>
+            <li><a href="https://console.firebase.google.com/project/snake-game-2e23b/firestore">Firebase console <span>→</span></a></li>
+            <li><a href="https://github.com/dataSolutions365">GitHub repos <span>→</span></a></li>
+            <li><a href="https://dcc.godaddy.com/control/portfolio/datasolutions365.com/settings">GoDaddy DNS <span>→</span></a></li>
+          </ul>
         </div>
       </div>
     </div>
@@ -384,6 +439,21 @@
   </div>
 </footer>
 
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+  // Owner sign-in. Uses the same Firebase project as the snake game.
+  // Who counts as the owner is decided by the Firestore rules in the
+  // Firebase console (see OWNER_SETUP.md), not by anything on this page,
+  // so the owner's email never appears in this public file.
+  const FIREBASE_CONFIG = {
+    apiKey: 'AIzaSyAA8sqDROwZoVvcy8MoJ1cTmGlg0GCP_nY',
+    authDomain: 'snake-game-2e23b.firebaseapp.com',
+    projectId: 'snake-game-2e23b',
+    appId: '1:185426735320:web:84d5c2b47233711dd527ad',
+  };
+</script>
 <script>
   document.getElementById('year').textContent = new Date().getFullYear();
 
@@ -499,6 +569,68 @@
       setTimeout(() => { b.style.transition = 'width 1s cubic-bezier(.2,.8,.2,1)'; b.setAttribute('width', (v / 40) * (R - L)); }, 120 * i);
       el('text', { x: L + (v / 40) * (R - L) + 8, y: yy + 20, 'font-size': 13, 'font-weight': 600 }, svg).textContent = v + '%';
     });
+  })();
+
+  // Owner area: sign in with Google, then show private stats if the
+  // database lets this account read them.
+  (function () {
+    if (typeof firebase === 'undefined') return;
+    firebase.initializeApp(FIREBASE_CONFIG);
+    const auth = firebase.auth(), db = firebase.firestore();
+    const $ = id => document.getElementById(id);
+    const link = $('signInLink'), section = $('owner');
+    const num = v => Number(v) || 0;
+
+    link.addEventListener('click', e => {
+      e.preventDefault();
+      if (auth.currentUser) { section.scrollIntoView(); return; }
+      auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(err => {
+        if (err.code === 'auth/popup-closed-by-user' || err.code === 'auth/cancelled-popup-request') return;
+        if (err.code === 'auth/unauthorized-domain') {
+          section.hidden = false;
+          $('ownerMsg').textContent = 'Sign-in isn\'t switched on for this website yet. Add datasolutions365.com to the authorized domains in Firebase (OWNER_SETUP.md, step 2).';
+          return;
+        }
+        section.hidden = false;
+        $('ownerMsg').textContent = 'Sign-in failed: ' + err.message;
+      });
+    });
+    $('signOutBtn').addEventListener('click', () => auth.signOut());
+
+    auth.onAuthStateChanged(async user => {
+      if (!user) {
+        section.hidden = true;
+        link.textContent = '🔒 Sign in';
+        return;
+      }
+      try {
+        const snap = await db.collection('stats').get();
+        showStats(snap.docs.map(d => ({ day: d.id, ...d.data() })));
+        $('ownerWho').textContent = 'Signed in as ' + user.email;
+        $('ownerMsg').textContent = '';
+        link.textContent = '📊 Owner';
+        section.hidden = false;
+        section.scrollIntoView({ behavior: 'smooth' });
+      } catch (err) {
+        // The database said no, so this isn't the owner's account.
+        await auth.signOut();
+        section.hidden = false;
+        $('ownerKpis').innerHTML = $('ownerBars').innerHTML = '';
+        $('ownerWho').textContent = '';
+        $('ownerMsg').textContent = 'Sorry, ' + user.email + ' doesn\'t have access to this area.';
+      }
+    });
+
+    function showStats(days) {
+      const dayString = ago => new Date(Date.now() - ago * 86400000).toISOString().slice(0, 10);
+      const total = (field, last) => days.filter(d => !last || d.day > dayString(last)).reduce((s, d) => s + num(d[field]), 0);
+      const card = (label, last) => `<div class="card"><small>${label}</small><b>${total('games', last).toLocaleString()} games</b><span>${total('visits', last).toLocaleString()} visits</span></div>`;
+      $('ownerKpis').innerHTML = card('Today', 1) + card('Last 7 days', 7) + card('Last 30 days', 30) + card('All time', 0);
+      const recent = [];
+      for (let i = 29; i >= 0; i--) { const f = days.find(d => d.day === dayString(i)); recent.push([dayString(i), f ? num(f.games) : 0]); }
+      const most = Math.max(1, ...recent.map(r => r[1]));
+      $('ownerBars').innerHTML = recent.map(([day, n]) => `<div style="height:${n / most * 100}%" title="${day}: ${n} games"></div>`).join('');
+    }
   })();
 
   // KPI count-up
