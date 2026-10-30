@@ -266,6 +266,10 @@
         <div class="owner-table" id="dressTable"></div>
       </details>
       <details class="card owner-more">
+        <summary>⚠️ Recent dress-up errors <span id="dressErrCount" style="color:var(--muted);font-weight:400"></span></summary>
+        <div class="owner-errors" id="dressErrors"></div>
+      </details>
+      <details class="card owner-more">
         <summary>🐍 Snake, every day by game mode</summary>
         <div class="owner-table" id="ownerTable"></div>
       </details>
@@ -579,6 +583,7 @@
         const snap = await db.collection('stats').get();
         showStats(snap.docs.map(d => ({ day: d.id, ...d.data() })));
         showDressUp().catch(() => { $('dressMsg').textContent = 'Dress-up stats aren\'t switched on yet. Add the dressup_stats rule in Firebase.'; });
+        showErrors('dressup_errors', 'dressErrors', 'dressErrCount').catch(() => { $('dressErrors').textContent = 'Couldn\'t load dress-up errors. Add the dressup_errors rule in Firebase.'; });
         showErrors().catch(() => { $('ownerErrors').textContent = 'Couldn\'t load errors.'; });
         $('ownerWho').textContent = 'Signed in as ' + user.email;
         $('ownerMsg').textContent = '';
@@ -632,13 +637,13 @@
           : '<tr><td colspan="11">No visits yet.</td></tr>') + '</table>';
     }
 
-    // The 20 newest errors from the snake game. Shown as plain text,
-    // since anyone's browser can write to this list.
-    async function showErrors() {
-      const snap = await db.collection('errors').orderBy('at', 'desc').limit(20).get();
-      const list = $('ownerErrors');
+    // The 20 newest errors from a game (snake by default). Shown as plain
+    // text, since anyone's browser can write to these lists.
+    async function showErrors(collection = 'errors', listId = 'ownerErrors', countId = 'ownerErrCount') {
+      const snap = await db.collection(collection).orderBy('at', 'desc').limit(20).get();
+      const list = $(listId);
       list.textContent = '';
-      $('ownerErrCount').textContent = snap.empty ? '(none 🎉)' : '(' + snap.size + ')';
+      $(countId).textContent = snap.empty ? '(none 🎉)' : '(' + snap.size + ')';
       snap.docs.forEach(doc => {
         const e = doc.data();
         const box = document.createElement('pre');

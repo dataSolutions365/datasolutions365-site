@@ -48,6 +48,17 @@ service cloud.firestore {
         && request.resource.data.keys().hasOnly(['visits', 'phone_visits', 'computer_visits', 'start_playing', 'surprise',
              'save_look', 'open_gallery', 'open_music', 'open_messages', 'send_message']);
     }
+    // Errors from the dress-up game: the game can add them, only the owner can read them.
+    match /dressup_errors/{id} {
+      allow read: if isOwner();
+      allow create: if request.resource.data.keys().hasOnly(['message', 'stack', 'where', 'version', 'device', 'at'])
+        && request.resource.data.message is string && request.resource.data.message.size() <= 500
+        && request.resource.data.stack is string && request.resource.data.stack.size() <= 1500
+        && request.resource.data.where is string && request.resource.data.where.size() <= 200
+        && request.resource.data.device is string && request.resource.data.device.size() <= 300
+        && request.resource.data.version is string && request.resource.data.version.size() <= 20
+        && request.resource.data.at == request.time;
+    }
     // Errors from the game: the game can add them, only the owner can read them.
     match /errors/{id} {
       allow read: if isOwner();
