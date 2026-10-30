@@ -15,7 +15,7 @@ only there, in the Firebase console, never in this public website code.
 ## 2. Allow your website to use it
 1. Still in Authentication, open the **Settings** tab → **Authorized domains**.
 2. Click **Add domain** → `datasolutions365.com` → **Add**.
-3. Add `www.datasolutions365.com` the same way.
+3. Add `www.datasolutions365.com` and `snake.datasolutions365.com` the same way.
 
 ## 3. Lock the stats so only you can read them
 1. Left menu: **Build → Firestore Database** → **Rules** tab.
@@ -37,6 +37,5 @@ only there, in the Firebase console, never in this public website code.
 Leave the `scores_...` blocks as they are, so everyone can still see the leaderboards.
 The game can still *count* visits and games; only *reading* the numbers is locked.
 
-Note: after step 3, https://snake.datasolutions365.com/stats.html will say it couldn't
-load the stats, because that page doesn't sign in. Use the Owner area on
-datasolutions365.com instead, or ask Claude to add the same sign-in to stats.html.
+https://snake.datasolutions365.com/stats.html has the same Google sign-in, so it keeps
+working for you after step 3 and shows nothing to anyone else.
